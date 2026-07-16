@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Loader2 } from "lucide-react"
 
 import { getTodoById, type TodoDetail } from "@/app/actions/todos"
 import { TodoForm } from "@/components/todo-drawer/todo-form"
@@ -57,7 +58,10 @@ export function TodoDrawer({
             />
           )}
           {state?.mode === "edit" && loading && (
-            <p className="text-sm text-muted-foreground">불러오는 중...</p>
+            <div className="flex flex-col items-center justify-center gap-2 py-12 text-sm text-muted-foreground">
+              <Loader2 className="size-5 animate-spin" />
+              불러오는 중...
+            </div>
           )}
           {state?.mode === "edit" && !loading && !todo && (
             <p className="text-sm text-muted-foreground">할일을 찾을 수 없습니다.</p>
