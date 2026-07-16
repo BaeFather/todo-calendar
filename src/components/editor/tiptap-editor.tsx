@@ -88,8 +88,8 @@ export function TiptapEditor({
     editorProps: {
       attributes: {
         class: cn(
-          "min-h-32 px-3 py-2 text-sm focus:outline-none",
-          !editable && "px-0 py-0",
+          "px-3 py-2 text-sm focus:outline-none",
+          editable ? "min-h-32" : "min-h-[300px]",
           PROSE_CLASSNAME
         ),
       },
@@ -130,7 +130,6 @@ export function TiptapEditor({
       className={cn(
         "rounded-md border border-input",
         editable && "focus-within:ring-3 focus-within:ring-ring/50",
-        !editable && "border-transparent",
         className
       )}
     >
