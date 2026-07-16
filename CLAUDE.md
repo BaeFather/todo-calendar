@@ -55,7 +55,15 @@ npx shadcn@latest add <component>
 
 ### Vercel
 
-아직 미연동 (ROADMAP.md Phase 6에서 프로젝트 생성 및 배포 예정).
+| 항목 | 값 |
+|---|---|
+| 계정 | baefather (Vercel CLI OAuth 인증) |
+| 팀/스코프 | `baefathers-projects` (`team_CtbPm0AWktlm6MS5o27nakrd`) |
+| 프로젝트명 | `todo-calendar` (`prj_O3kPLu81QxMdMhgwWxcnXTfKy6Zs`) |
+| 프로덕션 도메인 | `https://todo-calendar-dun.vercel.app` |
+| 연동 방식 | GitHub 저장소가 아직 없어 Vercel CLI(`vercel link` / `vercel deploy --prod`)로 로컬 디렉토리를 직접 배포. 이후 GitHub 연동 시 자동 배포로 전환 가능 |
+| 환경변수 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_SITE_URL`을 Production/Preview/Development 전체에 등록 완료 |
+| Supabase Auth 연동 | Site URL을 프로덕션 도메인으로 변경, Redirect URLs에 로컬(`http://localhost:3000/**`)·프로덕션(`https://todo-calendar-dun.vercel.app/**`)·프리뷰 와일드카드(`https://todo-calendar-*-baefathers-projects.vercel.app/**`) 등록 |
 
 ## 진행 중인 기능: 캘린더 기반 Todo 웹서비스
 

@@ -41,4 +41,4 @@ npm run lint     # ESLint 실행
 
 ## 배포
 
-[Vercel](https://vercel.com)에 배포할 예정이다. 배포 절차는 `ROADMAP.md`의 Phase 6을 따른다.
+[Vercel](https://vercel.com)에 배포되어 있다: [https://todo-calendar-dun.vercel.app](https://todo-calendar-dun.vercel.app). 계정/환경변수 등 연동 정보는 `CLAUDE.md`의 "연동 계정 및 외부 서비스 현황"을, 배포 절차는 `ROADMAP.md`의 Phase 6을 참고한다.
