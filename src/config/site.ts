@@ -1,6 +1,6 @@
 export const siteConfig = {
-  name: "My App",
-  description: "모던 Next.js 스타터킷",
+  name: "todo-calendar",
+  description: "캘린더 기반 할일(Todo) 웹서비스",
   url: "https://example.com",
   nav: [{ title: "홈", href: "/" }],
   links: {
