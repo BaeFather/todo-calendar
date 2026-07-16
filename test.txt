@@ -1,0 +1,2 @@
+Custom command 도 skills 의 범주에 속한다.
+컨벤셔널 커밋룰을 적용하였다.
