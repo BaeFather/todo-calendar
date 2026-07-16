@@ -14,7 +14,7 @@ export function TodoPill({
       type="button"
       onClick={() => onSelect?.(todo.id)}
       title={`${todo.title} · ${todo.display_name}`}
-      className="w-full truncate rounded-md bg-primary/10 px-1.5 py-0.5 text-left text-xs text-primary transition-colors hover:bg-primary/20"
+      className="w-full truncate rounded-md bg-foreground/10 px-1.5 py-0.5 text-left text-xs text-foreground transition-colors hover:bg-foreground/20"
     >
       {todo.title}
     </button>
