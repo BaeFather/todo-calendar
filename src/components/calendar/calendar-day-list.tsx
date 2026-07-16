@@ -13,6 +13,7 @@ export function CalendarDayList({
   monthDate,
   weeks,
   todosByDate,
+  holidays,
   canCreate,
   onSelectDate,
   onSelectTodo,
@@ -20,6 +21,7 @@ export function CalendarDayList({
   monthDate: Date
   weeks: Date[][]
   todosByDate: Map<string, TodoWithAuthor[]>
+  holidays: Set<string>
   canCreate: boolean
   onSelectDate?: (day: Date) => void
   onSelectTodo?: (todoId: string) => void
@@ -31,6 +33,7 @@ export function CalendarDayList({
       {days.map((day) => {
         const todos = todosByDate.get(toDateKey(day)) ?? []
         const today = isCalendarToday(day)
+        const isWeekendOrHoliday = day.getDay() === 0 || day.getDay() === 6 || holidays.has(toDateKey(day))
 
         return (
           <div
@@ -42,6 +45,7 @@ export function CalendarDayList({
                 <span
                   className={cn(
                     "flex size-7 items-center justify-center rounded-full text-sm font-medium",
+                    !today && isWeekendOrHoliday && "text-[#FF2222]",
                     today && "bg-primary text-primary-foreground"
                   )}
                 >

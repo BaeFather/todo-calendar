@@ -8,6 +8,7 @@ export function CalendarGrid({
   monthDate,
   weeks,
   todosByDate,
+  holidays,
   canCreate,
   onSelectDate,
   onSelectTodo,
@@ -15,6 +16,7 @@ export function CalendarGrid({
   monthDate: Date
   weeks: Date[][]
   todosByDate: Map<string, TodoWithAuthor[]>
+  holidays: Set<string>
   canCreate: boolean
   onSelectDate?: (day: Date) => void
   onSelectTodo?: (todoId: string) => void
@@ -39,6 +41,7 @@ export function CalendarGrid({
               day={day}
               monthDate={monthDate}
               todos={todosByDate.get(toDateKey(day)) ?? []}
+              holidays={holidays}
               canCreate={canCreate}
               onSelectDate={onSelectDate}
               onSelectTodo={onSelectTodo}

@@ -3,7 +3,7 @@
 import { Plus } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { isCalendarToday, isCurrentMonth } from "@/lib/date/calendar"
+import { isCalendarToday, isCurrentMonth, toDateKey } from "@/lib/date/calendar"
 import { TodoPill } from "@/components/calendar/todo-pill"
 import type { TodoWithAuthor } from "@/types/todo"
 
@@ -11,6 +11,7 @@ export function CalendarCell({
   day,
   monthDate,
   todos,
+  holidays,
   canCreate,
   onSelectDate,
   onSelectTodo,
@@ -18,12 +19,14 @@ export function CalendarCell({
   day: Date
   monthDate: Date
   todos: TodoWithAuthor[]
+  holidays: Set<string>
   canCreate: boolean
   onSelectDate?: (day: Date) => void
   onSelectTodo?: (todoId: string) => void
 }) {
   const inCurrentMonth = isCurrentMonth(day, monthDate)
   const today = isCalendarToday(day)
+  const isWeekendOrHoliday = day.getDay() === 0 || day.getDay() === 6 || holidays.has(toDateKey(day))
 
   return (
     <div
@@ -36,6 +39,7 @@ export function CalendarCell({
         <span
           className={cn(
             "flex size-6 items-center justify-center rounded-full text-xs font-medium",
+            !today && isWeekendOrHoliday && "text-[#FF2222]",
             today && "bg-primary text-primary-foreground"
           )}
         >

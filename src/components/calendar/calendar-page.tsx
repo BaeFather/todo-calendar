@@ -11,12 +11,14 @@ export function CalendarPage({
   monthDate,
   weeks,
   todosByDate,
+  holidays,
   canCreate,
   currentUserId,
 }: {
   monthDate: Date
   weeks: Date[][]
   todosByDate: Map<string, TodoWithAuthor[]>
+  holidays: Set<string>
   canCreate: boolean
   currentUserId: string | null
 }) {
@@ -29,6 +31,7 @@ export function CalendarPage({
           monthDate={monthDate}
           weeks={weeks}
           todosByDate={todosByDate}
+          holidays={holidays}
           canCreate={canCreate}
           onSelectDate={(date) => setDrawerState({ mode: "create", date })}
           onSelectTodo={(todoId) => setDrawerState({ mode: "edit", todoId })}
@@ -39,6 +42,7 @@ export function CalendarPage({
           monthDate={monthDate}
           weeks={weeks}
           todosByDate={todosByDate}
+          holidays={holidays}
           canCreate={canCreate}
           onSelectDate={(date) => setDrawerState({ mode: "create", date })}
           onSelectTodo={(todoId) => setDrawerState({ mode: "edit", todoId })}

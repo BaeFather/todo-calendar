@@ -3,6 +3,7 @@ import { Container } from "@/components/layout/container"
 import { CalendarHeader } from "@/components/calendar/calendar-header"
 import { CalendarPage } from "@/components/calendar/calendar-page"
 import { getCalendarMonthMatrix, parseMonthParam, toDateKey } from "@/lib/date/calendar"
+import { getHolidayDateSet } from "@/lib/holidays/get-holidays"
 import type { TodoWithAuthor } from "@/types/todo"
 
 export default async function HomePage({
@@ -15,6 +16,8 @@ export default async function HomePage({
   const weeks = getCalendarMonthMatrix(monthDate)
   const gridStart = toDateKey(weeks[0][0])
   const gridEnd = toDateKey(weeks[weeks.length - 1][6])
+  const gridYears = [weeks[0][0].getFullYear(), weeks[weeks.length - 1][6].getFullYear()]
+  const holidaysPromise = getHolidayDateSet(gridYears)
 
   const supabase = await createClient()
   const {
@@ -47,6 +50,8 @@ export default async function HomePage({
     todosByDate.set(todo.date, list)
   }
 
+  const holidays = await holidaysPromise
+
   return (
     <Container className="py-4">
       <CalendarHeader monthDate={monthDate} />
@@ -54,6 +59,7 @@ export default async function HomePage({
         monthDate={monthDate}
         weeks={weeks}
         todosByDate={todosByDate}
+        holidays={holidays}
         canCreate={!!user}
         currentUserId={user?.id ?? null}
       />
