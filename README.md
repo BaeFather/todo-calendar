@@ -8,7 +8,14 @@
 - **Backend**: Supabase (Postgres DB, Auth, Storage)
 - **배포**: Vercel
 
-아키텍처 설계(DB 스키마, RLS 정책, 인증 흐름, 컴포넌트 구조)와 단계별 작업 계획은 [`ROADMAP.md`](./ROADMAP.md)에, 개발 시 지켜야 할 규칙과 연동 계정 현황은 [`CLAUDE.md`](./CLAUDE.md)에 정리되어 있다.
+## 개발 참조
+
+| 파일 | 설명 |
+| --- | --- |
+| [`ROADMAP.md`](./ROADMAP.md) | 아키텍처 설계(DB 스키마, RLS 정책, 인증 흐름, 컴포넌트 구조)와 단계별 작업 계획 |
+| [`CLAUDE.md`](./CLAUDE.md) | 개발 시 지켜야 할 규칙과 연동 계정 현황 |
+| [`docs/prd.md`](./docs/prd.md) | 제품 요구사항(기능 정의, 화면별 명세) |
+| [`docs/migrations`](./docs/migrations) | Supabase 프로젝트에 적용한 마이그레이션(테이블·RLS 정책·Storage 버킷 생성 등) SQL, 실행 순서대로 보관 |
 
 ## 시작하기
 
