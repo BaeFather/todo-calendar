@@ -43,7 +43,7 @@ export function TodoDrawer({
 
   return (
     <Sheet open={state !== null} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-lg">
+      <SheetContent side="right" className="w-[90%]! overflow-y-auto sm:max-w-[612px]!">
         <SheetHeader>
           <SheetTitle>{state?.mode === "create" ? "할일 추가" : "할일 상세"}</SheetTitle>
         </SheetHeader>
