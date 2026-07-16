@@ -22,7 +22,7 @@ export function CalendarGrid({
   onSelectTodo?: (todoId: string) => void
 }) {
   return (
-    <div className="overflow-hidden rounded-lg border-t border-l border-border">
+    <div className="overflow-hidden rounded-lg border border-border">
       <div className="grid grid-cols-7 border-b border-border bg-muted/40">
         {WEEKDAY_LABELS.map((label) => (
           <div
