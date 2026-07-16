@@ -5,15 +5,15 @@ metadata:
   type: project
 ---
 
-2026-07-16에 Phase 1(더미 로그인/회원가입 → 실제 Supabase Auth 연동) 코드 리뷰를 수행하고 아래 이슈들을 발견함. 아직 수정 여부는 확인되지 않았으므로, 관련 파일을 다시 작업하게 되면 고쳐졌는지 먼저 확인할 것.
+2026-07-16에 Phase 1(더미 로그인/회원가입 → 실제 Supabase Auth 연동) 코드 리뷰를 수행하고 아래 이슈들을 발견함. 1번(반드시 수정)과 2~4번(개선 권장사항)은 모두 2026-07-16에 수정 완료됨. 아래는 당시 발견 내용 + 실제 적용된 수정 내용 기록.
 
-1. **`src/components/layout/site-header.tsx` 모바일 네비 회귀 버그**: `displayName` 유무로 분기하면서 로그인 상태일 때 모바일(`md` 미만)에서 `Sheet`(햄버거 메뉴, `NavLinks` 포함) 전체가 사라지고 `UserNav`로 완전히 대체됨. 즉 로그인한 사용자는 모바일에서 사이트 내비게이션 링크(`siteConfig.nav`)에 접근할 방법이 없음. 현재는 `nav`가 "홈" 하나뿐이라 체감 영향이 작지만, Phase 2 이후 캘린더/기타 nav 항목이 추가되면 로그인 사용자만 이동 불가능해짐. 커밋 전 diff 확인 결과 로그인 전에는 항상 Sheet가 떠 있었던 걸 이번에 조건부로 바꾸면서 생긴 회귀. 수정 방향: `UserNav`는 Sheet 트리거 옆에 별도로 두거나 Sheet 내부에 포함시켜, 로그인 여부와 무관하게 모바일 네비 접근성을 유지해야 함.
+1. **[수정완료] `src/components/layout/site-header.tsx` 모바일 네비 회귀 버그**: `displayName` 유무로 분기하면서 로그인 상태일 때 모바일(`md` 미만)에서 `Sheet`(햄버거 메뉴, `NavLinks` 포함) 전체가 사라지고 `UserNav`로 완전히 대체됨. 수정: `UserNav`를 Sheet 트리거 옆에 나란히 렌더링(`{displayName && <UserNav .../>}`)하고, `Sheet`/`NavLinks`는 로그인 여부와 무관하게 항상 렌더링, "로그인" 버튼만 `{!displayName && ...}`으로 조건부 처리.
 
-2. **`src/components/layout/site-header.tsx`의 `onAuthStateChange` 이벤트 필터링 없음**: 구독 콜백이 이벤트 종류를 가리지 않고 항상 `router.refresh()`를 호출함. `INITIAL_SESSION`(마운트 시 최초 1회), `TOKEN_REFRESHED`(주기적, 보통 1시간마다), `USER_UPDATED` 등에도 불필요한 서버 컴포넌트 리페치가 발생. 무한루프는 아니지만(리프레시 자체가 새 auth 이벤트를 만들지 않음) 낭비성 리렌더링/깜빡임 유발 가능. `SIGNED_IN` / `SIGNED_OUT`일 때만 `router.refresh()` 하도록 이벤트 필터링 권장.
+2. **[수정완료] `site-header.tsx`의 `onAuthStateChange` 이벤트 필터링 없음**: 모든 이벤트에 무조건 `router.refresh()` 호출하던 것을, `event === "SIGNED_IN" || event === "SIGNED_OUT"`일 때만 호출하도록 필터링함.
 
-3. **`src/components/auth/signup-form.tsx`가 `data.session` 미확인**: `signUp` 응답에서 `error`만 구조분해하고 `data`는 무시함. Supabase 프로젝트의 "Confirm email" 설정이 꺼져 있으면 `signUp` 직후 세션이 바로 생성되는데, 이 경우에도 무조건 "인증 메일을 발송했습니다" 토스트만 띄우고 `form.reset()`만 함 — 실제로는 이미 로그인된 상태인데 UI가 이를 반영 못함. `data.session` 존재 여부로 분기해 로그인 상태면 `router.push("/") + router.refresh()`를 호출하도록 보완 필요.
+3. **[수정완료] `signup-form.tsx`가 `data.session` 미확인**: `signUp` 응답에서 `data`도 구조분해하도록 변경, `data.session`이 존재하면(Confirm email 꺼져있어 즉시 로그인된 경우) 성공 토스트 후 `router.push("/") + router.refresh()` 호출. 세션이 없으면(이메일 인증 필요) 기존대로 "인증 메일을 발송했습니다" 토스트 + `form.reset()`.
 
-4. **로그인/회원가입 폼의 `error.message` 원문 노출**: `login-form.tsx`/`signup-form.tsx` 둘 다 `toast.error(error.message)`로 Supabase 에러 메시지를 그대로 노출. 로그인 실패 메시지("Invalid login credentials")는 Supabase가 의도적으로 일반화한 문구라 문제 없지만, 회원가입 시 이미 가입된(확인 완료) 이메일로 재가입을 시도하면 "User already registered" 같은 메시지가 그대로 노출되어 이메일 존재 여부를 추측할 수 있는 계정 열거(enumeration) 여지가 있음. `src/app/auth/callback/route.ts`는 반대로 일반화된 한국어 메시지("인증에 실패했습니다...")를 쓰는 좋은 패턴이므로, 폼 쪽도 회원가입 실패 메시지는 일반화된 문구로 통일하는 걸 검토.
+4. **[수정완료] 로그인/회원가입 폼의 `error.message` 원문 노출**: `login-form.tsx`는 "이메일 또는 비밀번호가 올바르지 않습니다."로 일반화. `signup-form.tsx`는 "회원가입에 실패했습니다. 입력하신 정보를 다시 확인해주세요."로 일반화하여 "User already registered" 등 계정 존재 여부를 드러내는 원문 노출을 제거함.
 
 **검증된 안전한 패턴** (재확인 불필요):
 - `auth/callback/route.ts`의 `next` 쿼리 파라미터는 `${origin}${next}` 형태로 origin을 항상 prefix하므로 `//evil.com`, `https://evil.com` 등을 넣어도 host가 바뀌지 않아 open redirect 위험 없음(직접 검증 완료).
