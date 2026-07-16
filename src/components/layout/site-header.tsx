@@ -42,8 +42,10 @@ export function SiteHeader({ displayName }: { displayName: string | null }) {
     const supabase = createClient()
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(() => {
-      router.refresh()
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+        router.refresh()
+      }
     })
 
     return () => subscription.unsubscribe()
