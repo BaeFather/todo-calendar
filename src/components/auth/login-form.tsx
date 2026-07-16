@@ -47,7 +47,7 @@ export function LoginForm({ initialError }: { initialError?: string }) {
     const { error } = await supabase.auth.signInWithPassword(values)
 
     if (error) {
-      toast.error(error.message)
+      toast.error("이메일 또는 비밀번호가 올바르지 않습니다.")
       return
     }
 

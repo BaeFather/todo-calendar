@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -29,6 +30,7 @@ import { Input } from "@/components/ui/input"
 const fieldOrder = ["email", "password", "confirmPassword"] as const
 
 export function SignupForm() {
+  const router = useRouter()
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: { email: "", password: "", confirmPassword: "" },
@@ -37,7 +39,7 @@ export function SignupForm() {
 
   async function onSubmit(values: SignupFormValues) {
     const supabase = createClient()
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: values.email,
       password: values.password,
       options: {
@@ -46,7 +48,14 @@ export function SignupForm() {
     })
 
     if (error) {
-      toast.error(error.message)
+      toast.error("회원가입에 실패했습니다. 입력하신 정보를 다시 확인해주세요.")
+      return
+    }
+
+    if (data.session) {
+      toast.success(`${values.email}(으)로 가입 및 로그인되었습니다.`)
+      router.push("/")
+      router.refresh()
       return
     }
 
