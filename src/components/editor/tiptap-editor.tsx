@@ -86,6 +86,13 @@ export function TiptapEditor({
     editable,
     immediatelyRender: false,
     editorProps: {
+      attributes: {
+        class: cn(
+          "min-h-32 px-3 py-2 text-sm focus:outline-none",
+          !editable && "px-0 py-0",
+          PROSE_CLASSNAME
+        ),
+      },
       transformPastedHTML(html) {
         return html
           .replace(/<script[\s\S]*?<\/script>/gi, "")
@@ -128,14 +135,7 @@ export function TiptapEditor({
       )}
     >
       {editable && editor && <TiptapToolbar editor={editor} />}
-      <EditorContent
-        editor={editor}
-        className={cn(
-          "min-h-32 px-3 py-2 text-sm focus:outline-none",
-          !editable && "px-0 py-0",
-          PROSE_CLASSNAME
-        )}
-      />
+      <EditorContent editor={editor} />
     </div>
   )
 }
