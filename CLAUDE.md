@@ -61,9 +61,22 @@ npx shadcn@latest add <component>
 | 팀/스코프 | `baefathers-projects` (`team_CtbPm0AWktlm6MS5o27nakrd`) |
 | 프로젝트명 | `todo-calendar` (`prj_O3kPLu81QxMdMhgwWxcnXTfKy6Zs`) |
 | 프로덕션 도메인 | `https://todo-calendar-dun.vercel.app` |
-| 연동 방식 | GitHub 저장소가 아직 없어 Vercel CLI(`vercel link` / `vercel deploy --prod`)로 로컬 디렉토리를 직접 배포. 이후 GitHub 연동 시 자동 배포로 전환 가능 |
-| 환경변수 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_SITE_URL`을 Production/Preview/Development 전체에 등록 완료 |
+| 연동 방식 | GitHub 저장소(`BaeFather/todo-calendar`)와 Vercel Git 연동 완료. `main` 브랜치에 `git push`하면 자동으로 프로덕션 배포되고, 다른 브랜치에 push하면 프리뷰 배포가 생성됨. Claude Code는 직접 `vercel deploy`를 실행하지 않고 항상 git push로만 배포를 트리거함 |
+| 환경변수 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_SITE_URL`, `HOLIDAY_API_SERVICE_KEY`를 Production/Preview/Development 전체에 등록 완료. 단 `NEXT_PUBLIC_SITE_URL`은 Preview 환경에 빈 값으로 등록되어 있어 프리뷰 배포에서 이메일 인증 콜백 링크가 깨지는 알려진 이슈 있음(`ROADMAP.md` Phase 6 참고, 수정 보류) |
 | Supabase Auth 연동 | Site URL을 프로덕션 도메인으로 변경, Redirect URLs에 로컬(`http://localhost:3000/**`)·프로덕션(`https://todo-calendar-dun.vercel.app/**`)·프리뷰 와일드카드(`https://todo-calendar-*-baefathers-projects.vercel.app/**`) 등록 |
+
+### 공공데이터포털 (data.go.kr)
+
+캘린더의 토/일요일·공휴일 날짜 빨간색 표시 기능에 사용. 구현 상세는 `ROADMAP.md`를 참고.
+
+| 항목 | 값 |
+|---|---|
+| 서비스명 | 한국천문연구원_특일 정보 (`SpcdeInfoService`) |
+| 사용 오퍼레이션 | `getRestDeInfo`(공휴일 정보조회)만 사용 — 발급받은 서비스키가 이 오퍼레이션만 호출 가능하도록 설정되어 있음 |
+| API 엔드포인트 | `https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo` |
+| 인증 방식 | 서비스키(Service Key) 쿼리 파라미터 (`ServiceKey`) |
+| 환경변수 | `HOLIDAY_API_SERVICE_KEY` — `.env.local`(로컬)과 Vercel Production/Preview/Development 전체에 등록 완료 |
+| 데이터 갱신 정책 | 공식 데이터는 연 1회 갱신, 임시공휴일 발표 시 1일 이내 반영, 대체공휴일은 대통령령 시행 후 반영(API 제공사 공지 기준) |
 
 ## 진행 중인 기능: 캘린더 기반 Todo 웹서비스
 

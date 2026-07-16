@@ -28,13 +28,14 @@ npm run dev
 
 [http://localhost:3000](http://localhost:3000)에서 결과를 확인할 수 있다.
 
-Supabase 연동이 필요한 기능(인증, DB, 이미지 업로드)을 사용하려면 `.env.local`에 아래 환경 변수가 필요하다. 값은 `CLAUDE.md`의 "연동 계정 및 외부 서비스 현황"과 Supabase 대시보드(Settings > API)를 참고한다.
+Supabase 연동이 필요한 기능(인증, DB, 이미지 업로드)을 사용하려면 `.env.local`에 아래 환경 변수가 필요하다. 값은 `CLAUDE.md`의 "연동 계정 및 외부 서비스 현황"과 Supabase 대시보드(Settings > API)를 참고한다. `HOLIDAY_API_SERVICE_KEY`는 캘린더의 공휴일 표시 기능(공공데이터포털 연동, `ROADMAP.md` 11장 참고)에 필요하다.
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 NEXT_PUBLIC_SITE_URL=
+HOLIDAY_API_SERVICE_KEY=
 ```
 
 ## 개발 명령어
