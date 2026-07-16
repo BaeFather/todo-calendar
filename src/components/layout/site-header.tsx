@@ -75,26 +75,25 @@ export function SiteHeader({ displayName }: { displayName: string | null }) {
         {/* 모바일 네비 (md 미만) */}
         <div className="flex md:hidden items-center gap-2">
           <ModeToggle />
-          {displayName ? (
-            <UserNav displayName={displayName} />
-          ) : (
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="메뉴 열기">
-                  <Menu className="size-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right">
-                <SheetHeader>
-                  <SheetTitle>{siteConfig.name}</SheetTitle>
-                </SheetHeader>
-                <NavLinks className="mt-6 flex flex-col gap-4" />
+          {displayName && <UserNav displayName={displayName} />}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label="메뉴 열기">
+                <Menu className="size-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right">
+              <SheetHeader>
+                <SheetTitle>{siteConfig.name}</SheetTitle>
+              </SheetHeader>
+              <NavLinks className="mt-6 flex flex-col gap-4" />
+              {!displayName && (
                 <Button asChild className="mt-6">
                   <Link href="/login">로그인</Link>
                 </Button>
-              </SheetContent>
-            </Sheet>
-          )}
+              )}
+            </SheetContent>
+          </Sheet>
         </div>
       </Container>
     </header>
