@@ -1,10 +1,13 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
+import { createClient } from "@/lib/supabase/client"
 import { loginSchema, type LoginFormValues } from "@/lib/validations/auth"
 import { focusFirstInvalidField } from "@/lib/forms/focus-first-invalid-field"
 import { Button } from "@/components/ui/button"
@@ -27,17 +30,30 @@ import { Input } from "@/components/ui/input"
 
 const fieldOrder = ["email", "password"] as const
 
-export function LoginForm() {
+export function LoginForm({ initialError }: { initialError?: string }) {
+  const router = useRouter()
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
     mode: "onTouched",
   })
 
+  useEffect(() => {
+    if (initialError) toast.error(initialError)
+  }, [initialError])
+
   async function onSubmit(values: LoginFormValues) {
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    const supabase = createClient()
+    const { error } = await supabase.auth.signInWithPassword(values)
+
+    if (error) {
+      toast.error(error.message)
+      return
+    }
+
     toast.success(`${values.email}(으)로 로그인 되었습니다.`)
-    form.reset()
+    router.push("/")
+    router.refresh()
   }
 
   return (

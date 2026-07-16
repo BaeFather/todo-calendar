@@ -5,6 +5,7 @@ import "./globals.css"
 
 import { cn } from "@/lib/utils"
 import { siteConfig } from "@/config/site"
+import { createClient } from "@/lib/supabase/server"
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { SiteHeader } from "@/components/layout/site-header"
 import { SiteFooter } from "@/components/layout/site-footer"
@@ -39,6 +40,21 @@ export default async function RootLayout({
   const cookieStore = await cookies()
   const savedTheme = (cookieStore.get("theme")?.value ?? "system") as Theme
 
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  let displayName: string | null = null
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", user.id)
+      .single()
+    displayName = profile?.display_name ?? null
+  }
+
   return (
     <html
       lang="ko"
@@ -52,7 +68,7 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col antialiased">
         <ThemeProvider initialTheme={savedTheme}>
-          <SiteHeader />
+          <SiteHeader displayName={user ? (displayName ?? user.email ?? "") : null} />
           <main className="flex-1">{children}</main>
           <SiteFooter />
           <Toaster />

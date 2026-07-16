@@ -1,9 +1,12 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 import { Menu } from "lucide-react"
 
 import { siteConfig } from "@/config/site"
+import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -14,6 +17,7 @@ import {
 } from "@/components/ui/sheet"
 import { ModeToggle } from "@/components/common/mode-toggle"
 import { Container } from "@/components/layout/container"
+import { UserNav } from "@/components/auth/user-nav"
 
 function NavLinks({ className }: { className?: string }) {
   return (
@@ -31,7 +35,20 @@ function NavLinks({ className }: { className?: string }) {
   )
 }
 
-export function SiteHeader() {
+export function SiteHeader({ displayName }: { displayName: string | null }) {
+  const router = useRouter()
+
+  useEffect(() => {
+    const supabase = createClient()
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => {
+      router.refresh()
+    })
+
+    return () => subscription.unsubscribe()
+  }, [router])
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <Container className="flex h-14 items-center justify-between">
@@ -46,30 +63,38 @@ export function SiteHeader() {
 
         <div className="hidden md:flex items-center gap-4">
           <ModeToggle />
-          <Button asChild size="sm">
-            <Link href="/login">로그인</Link>
-          </Button>
+          {displayName ? (
+            <UserNav displayName={displayName} />
+          ) : (
+            <Button asChild size="sm">
+              <Link href="/login">로그인</Link>
+            </Button>
+          )}
         </div>
 
         {/* 모바일 네비 (md 미만) */}
         <div className="flex md:hidden items-center gap-2">
           <ModeToggle />
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="메뉴 열기">
-                <Menu className="size-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right">
-              <SheetHeader>
-                <SheetTitle>{siteConfig.name}</SheetTitle>
-              </SheetHeader>
-              <NavLinks className="mt-6 flex flex-col gap-4" />
-              <Button asChild className="mt-6">
-                <Link href="/login">로그인</Link>
-              </Button>
-            </SheetContent>
-          </Sheet>
+          {displayName ? (
+            <UserNav displayName={displayName} />
+          ) : (
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="메뉴 열기">
+                  <Menu className="size-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right">
+                <SheetHeader>
+                  <SheetTitle>{siteConfig.name}</SheetTitle>
+                </SheetHeader>
+                <NavLinks className="mt-6 flex flex-col gap-4" />
+                <Button asChild className="mt-6">
+                  <Link href="/login">로그인</Link>
+                </Button>
+              </SheetContent>
+            </Sheet>
+          )}
         </div>
       </Container>
     </header>

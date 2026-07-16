@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
+import { createClient } from "@/lib/supabase/client"
 import { signupSchema, type SignupFormValues } from "@/lib/validations/auth"
 import { focusFirstInvalidField } from "@/lib/forms/focus-first-invalid-field"
 import { Button } from "@/components/ui/button"
@@ -35,8 +36,21 @@ export function SignupForm() {
   })
 
   async function onSubmit(values: SignupFormValues) {
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    toast.success(`${values.email}(으)로 회원가입이 완료되었습니다.`)
+    const supabase = createClient()
+    const { error } = await supabase.auth.signUp({
+      email: values.email,
+      password: values.password,
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      },
+    })
+
+    if (error) {
+      toast.error(error.message)
+      return
+    }
+
+    toast.success(`${values.email}(으)로 인증 메일을 발송했습니다. 메일함을 확인해주세요.`)
     form.reset()
   }
 
