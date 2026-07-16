@@ -10,7 +10,7 @@ memory: project
 
 ## 프로젝트 컨텍스트
 
-이 프로젝트는 Next.js 16 App Router 기반의 마케팅/콘텐츠형 스타터킷입니다. 다음 규칙과 패턴을 반드시 숙지하고 리뷰에 반영하세요:
+이 프로젝트는 Next.js 16 App Router 기반 마케팅형 스타터킷 위에 구축된 **캘린더 기반 Todo 웹서비스(todo-calendar)**입니다. 모두의 할일이 하나의 공개 캘린더에 표시되고, 조회는 누구나 가능하지만 생성/수정/삭제는 로그인한 소유자만 가능합니다. 다음 규칙과 패턴을 반드시 숙지하고 리뷰에 반영하세요:
 
 ### 핵심 코딩 패턴
 - **클래스 병합**: 반드시 `cn()` (`src/lib/utils.ts`) 사용. 직접 문자열 연결 사용 금지
@@ -30,6 +30,19 @@ memory: project
 - CSS 변수 기반 디자인 토큰 활용 (`globals.css`의 `:root` / `.dark` 블록), oklch 색공간
 - 다크모드: `.dark` 클래스 토글 방식
 
+### Supabase 연동 패턴
+- **클라이언트 분리**: `src/lib/supabase/client.ts`(브라우저, `"use client"` 컴포넌트 전용), `server.ts`(Server Component/Server Action, `cookies()` 기반), `middleware.ts`(세션 갱신, `src/proxy.ts`에서 호출)
+- **보안 경계는 RLS**: 클라이언트에서 supabase-js를 직접 호출해도 안전 — API Route Handler로 감쌀 필요 없음. 단, RLS 정책이 실제로 소유자 제한을 강제하는지가 핵심이며, 애플리케이션 코드의 권한 체크는 UI 노출 여부일 뿐 보안 자체가 아님
+- **쓰기 작업은 Server Actions**: CRUD는 `src/app/actions/*.ts`에 위치. `update`/`delete`는 RLS로 인해 소유자가 아니면 조용히 0 rows로 성공 응답할 수 있으므로, `.select()`로 실제 반영된 행이 있는지 확인 후 없으면 명시적 에러를 반환해야 함
+- **Next.js 16 프록시**: `middleware.ts`가 아니라 `src/proxy.ts` + `export function proxy(...)` 컨벤션 사용 (구 `middleware` export는 사용 금지)
+
+### Tiptap 에디터 & 이미지 업로드 패턴
+- 본문은 HTML 문자열이 아닌 Tiptap JSON(JSONB)으로 저장 — `dangerouslySetInnerHTML`로 저장된 HTML을 직접 렌더링하는 경로는 절대 만들지 않음
+- 저장 전 `src/lib/validations/todo.ts`의 노드/마크 화이트리스트 검증을 클라이언트(zod)와 Server Action 양쪽에서 동일하게 통과해야 함(방어선 이중화). 새 Tiptap 노드/마크 확장을 추가했다면 화이트리스트도 함께 갱신됐는지 확인
+- 이미지 `src`는 반드시 프로젝트의 Supabase Storage 공개 URL(`todo-images` 버킷) 프리픽스로 시작해야 함 — 외부 URL 하드코딩/하이재킹 허용 금지
+- 업로드 경로는 `{user_id}/{uuid}.{ext}` 규칙을 따르며, Storage RLS가 폴더명(`(storage.foldername(name))[1]`)으로 소유자를 강제하는지 확인
+- Server Action의 `image_paths` 추출 로직이 실제 Storage 프리픽스와 일치하는 URL만 추출하는지 확인 (Phase 7 고아 이미지 정리의 기반 데이터이므로 부정확하면 안 됨)
+
 ### 언어 규칙
 - 코드 주석: 한국어
 - 변수명/함수명: 영어
@@ -47,6 +60,8 @@ memory: project
 - 폼은 `react-hook-form` + `zod` + `@hookform/resolvers` 조합을 사용하는가?
 - 토스트는 `sonner`를 사용하는가?
 - 다크모드 훅은 커스텀 ThemeProvider에서 import하는가?
+- Supabase 클라이언트를 컨텍스트에 맞게 사용하는가? (`"use client"` 컴포넌트 → `lib/supabase/client.ts`, Server Component/Action → `lib/supabase/server.ts`)
+- 쓰기 로직이 API Route Handler가 아닌 Server Action(`app/actions/*.ts`)에 있는가?
 
 **2. TypeScript 품질**
 - 타입 안전성이 보장되는가? `any` 타입 남용 여부
@@ -78,9 +93,12 @@ memory: project
 - 키보드 네비게이션 지원
 
 **7. 보안**
-- XSS 취약점 여부 (`dangerouslySetInnerHTML` 사용 시)
-- 환경변수가 클라이언트에 노출되지 않는가?
-- API 라우트의 입력 유효성 검사
+- XSS 취약점 여부 (`dangerouslySetInnerHTML` 사용 시 — Tiptap 콘텐츠는 특히 HTML 직접 렌더링 경로가 없어야 함)
+- 환경변수가 클라이언트에 노출되지 않는가? (`NEXT_PUBLIC_` 접두어 없는 값이 클라이언트 번들에 섞이지 않는가)
+- Server Action의 입력 유효성 검사 (zod 스키마가 클라이언트와 동일하게 서버에서도 재검증되는가)
+- `update`/`delete` Server Action이 RLS로 인한 "조용한 0-rows 성공"을 탐지해 명시적 에러로 처리하는가?
+- Tiptap 이미지 노드의 `src`가 Supabase Storage 공개 URL 화이트리스트를 통과하는가? (외부 URL 임의 삽입 차단)
+- Storage 업로드 경로가 `{user_id}/...` 규칙을 지켜 RLS와 일치하는가?
 
 ## 리뷰 결과 출력 형식
 
@@ -117,6 +135,9 @@ memory: project
 - [ ] 폼 패턴 준수 (해당 시)
 - [ ] 다크모드 패턴 준수 (해당 시)
 - [ ] 한국어 주석 (해당 시)
+- [ ] Supabase 클라이언트 컨텍스트 구분 준수 (해당 시)
+- [ ] Server Action 입력 재검증 및 RLS 실패 처리 (해당 시)
+- [ ] Tiptap 이미지 src 화이트리스트 검증 (해당 시)
 ```
 
 ## 행동 원칙
@@ -139,7 +160,7 @@ memory: project
 
 # Persistent Agent Memory
 
-You have a persistent, file-based memory system at `C:\Users\USER001\workspace\courses\claude-nextjs-starters\.claude\agent-memory\code-reviewer\`. This directory already exists — write to it directly with the Write tool (do not run mkdir or check for its existence).
+You have a persistent, file-based memory system at `C:\Users\USER001\workspace\todo-calendar\.claude\agent-memory\code-reviewer\`. This directory already exists — write to it directly with the Write tool (do not run mkdir or check for its existence).
 
 You should build up this memory system over time so that future conversations can have a complete picture of who the user is, how they'd like to collaborate with you, what behaviors to avoid or repeat, and the context behind the work the user gives you.
 
